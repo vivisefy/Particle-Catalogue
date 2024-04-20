@@ -24,6 +24,9 @@ public:
     double spin() const override { return spin_; }
     FourMomentum getFourMomentum() const override { return fourMomentum_; }
     virtual std::string getType() const override { return "Lepton"; }
+    virtual std::vector<std::shared_ptr<Particle>> decay() const override {
+        return {}; // Default: no decay products for generic leptons
+    }
 
     void print(bool detailed) const override {
         std::cout << getType() << " with charge: " << charge_
@@ -72,7 +75,12 @@ public:
     Tau(double charge, double spin, FourMomentum fourMomentum)
         : Lepton(charge, spin, (charge > 0 ? 1 : -1), fourMomentum) {}
 
-    void decay(const std::vector<std::shared_ptr<Particle>>& products) {
+    std::vector<std::shared_ptr<Particle>> decay() const override {
+        // Example decay mechanism for a tau lepton
+        return decayProducts; // This would be set by the simulation depending on the decay mode
+    }
+
+    void setDecayProducts(const std::vector<std::shared_ptr<Particle>>& products) {
         decayProducts = products;
     }
 
@@ -92,7 +100,7 @@ public:
 
 class Neutrino : public Lepton {
 public:
-    Neutrino(double charge, double spin, FourMomentum fourMomentum, const std::string& type)
+    Neutrino(double charge, double spin, FourMomentum fourMomentum)
         : Lepton(charge, spin, (charge > 0 ? 1 : -1), fourMomentum) {}
 
     std::string getType() const override {

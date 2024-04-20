@@ -3,22 +3,32 @@
 
 #include <iostream>  // For std::cout and std::endl
 #include <string>
+#include <vector>
+#include <memory>    // For std::shared_ptr
 #include "FourMomentum.h"
 
 class Particle {
 public:
     virtual ~Particle() {}
 
+    // Basic properties
     virtual double charge() const = 0;
     virtual double spin() const = 0;
     virtual void print(bool detailed) const = 0;
     virtual std::string getType() const = 0;
     virtual FourMomentum getFourMomentum() const = 0;
 
+    // Quantum numbers
     virtual int getBaryonNumber() const { return 0; }
     virtual int getLeptonNumber() const { return 0; }
     virtual bool isStable() const { return true; }
 
+    // Decay function: Returns a vector of decay products
+    virtual std::vector<std::shared_ptr<Particle>> decay() const {
+        return {}; // By default, an empty vector (no decay products)
+    }
+
+    // Display basic information
     void displayBasicInfo() const {
         std::cout << getType() << ":\n"
                   << "  Charge: " << charge() << "\n"
