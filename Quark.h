@@ -1,3 +1,6 @@
+#ifndef QUARK_H
+#define QUARK_H
+
 #include "Particle.h"
 #include <iostream>
 
@@ -6,11 +9,13 @@ protected:
     std::string type_;
     double charge_;
     double spin_;
+    std::string colorCharge_;  // Added color charge for quarks
     FourMomentum fourMomentum_;
 
 public:
-    Quark(std::string type, double charge, double spin, FourMomentum fourMomentum)
-        : type_(type), charge_(charge), spin_(spin), fourMomentum_(fourMomentum) {}
+    // Updated constructor to include color charge
+    Quark(std::string type, double charge, double spin, std::string colorCharge, FourMomentum fourMomentum)
+        : type_(type), charge_(charge), spin_(spin), colorCharge_(colorCharge), fourMomentum_(fourMomentum) {}
 
     virtual ~Quark() {}
 
@@ -19,9 +24,13 @@ public:
     FourMomentum getFourMomentum() const override { return fourMomentum_; }
     std::string getType() const override { return type_; }
 
+    // Added getter for color charge
+    std::string getColorCharge() const { return colorCharge_; }
+
     void print(bool detailed) const override {
         std::cout << type_ << " with charge: " << charge_
                   << ", spin: " << spin_
+                  << ", color charge: " << colorCharge_  // Display color charge
                   << ", four-momentum: E=" << fourMomentum_.getComponent(0)
                   << ", px=" << fourMomentum_.getComponent(1)
                   << ", py=" << fourMomentum_.getComponent(2)
@@ -30,3 +39,5 @@ public:
                   << std::endl;
     }
 };
+
+#endif // QUARK_H

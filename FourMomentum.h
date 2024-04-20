@@ -7,7 +7,7 @@
 
 class FourMomentum {
 private:
-    std::vector<double> components;  // Store the four components: E, px, py, pz
+    std::vector<double> components;
 
 public:
     FourMomentum();
@@ -17,7 +17,7 @@ public:
     double invariantMass() const;
     FourMomentum operator+(const FourMomentum& other) const;
     FourMomentum operator-(const FourMomentum& other) const;
-    double operator*(const FourMomentum& other) const;  // Dot product
+    double operator*(const FourMomentum& other) const;
     FourMomentum& operator+=(const FourMomentum& other);
     bool operator!=(const FourMomentum& other) const;
 };

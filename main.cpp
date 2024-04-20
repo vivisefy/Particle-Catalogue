@@ -1,60 +1,41 @@
-#include <iostream>
-#include <memory>
-#include "ParticleCatalogue.h"
+#include "Particle.h"
 #include "Lepton.h"
 #include "Quark.h"
 #include "Boson.h"
 #include "FourMomentum.h"
-
-void testParticles() {
-    ParticleCatalogue<std::vector<std::shared_ptr<Particle>>> catalogue;
-
-    // Adding leptons including neutrinos
-    std::vector<double> electronLayers{100, 200, 300, 400}; // Example layer energies for calorimeter
-    catalogue.addParticle(std::make_shared<Electron>(-1, 0.5, FourMomentum(1000, 0, 0, 0), electronLayers));
-    catalogue.addParticle(std::make_shared<Electron>(1, 0.5, FourMomentum(1000, 0, 0, 0), electronLayers)); // Positron
-    catalogue.addParticle(std::make_shared<Muon>(-1, 0.5, FourMomentum(105.66, 0, 0, 0), true));
-    catalogue.addParticle(std::make_shared<Muon>(1, 0.5, FourMomentum(105.66, 0, 0, 0), true)); // Anti-muon
-    catalogue.addParticle(std::make_shared<Tau>(-1, 0.5, FourMomentum(1776.86, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Tau>(1, 0.5, FourMomentum(1776.86, 0, 0, 0))); // Anti-tau
-    catalogue.addParticle(std::make_shared<Neutrino>(0, 0.5, FourMomentum(0, 0, 0, 0), "Electron Neutrino"));
-    catalogue.addParticle(std::make_shared<Neutrino>(0, 0.5, FourMomentum(0, 0, 0, 0), "Muon Neutrino"));
-    catalogue.addParticle(std::make_shared<Neutrino>(0, 0.5, FourMomentum(0, 0, 0, 0), "Tau Neutrino"));
-
-    // Adding quarks
-    catalogue.addParticle(std::make_shared<Quark>("Up Quark", 2/3.0, 0.5, FourMomentum(2.3, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Quark>("Anti-Up Quark", -2/3.0, 0.5, FourMomentum(2.3, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Quark>("Down Quark", -1/3.0, 0.5, FourMomentum(4.8, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Quark>("Anti-Down Quark", 1/3.0, 0.5, FourMomentum(4.8, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Quark>("Charm Quark", 2/3.0, 0.5, FourMomentum(1.27, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Quark>("Anti-Charm Quark", -2/3.0, 0.5, FourMomentum(1.27, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Quark>("Strange Quark", -1/3.0, 0.5, FourMomentum(0.095, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Quark>("Anti-Strange Quark", 1/3.0, 0.5, FourMomentum(0.095, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Quark>("Top Quark", 2/3.0, 0.5, FourMomentum(173.1, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Quark>("Anti-Top Quark", -2/3.0, 0.5, FourMomentum(173.1, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Quark>("Bottom Quark", -1/3.0, 0.5, FourMomentum(4.18, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Quark>("Anti-Bottom Quark", 1/3.0, 0.5, FourMomentum(4.18, 0, 0, 0)));
-
-    // Adding bosons
-    catalogue.addParticle(std::make_shared<Boson>("Z Boson", 0, 1, FourMomentum(91.1876, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Boson>("W+ Boson", 1, 1, FourMomentum(80.379, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Boson>("W- Boson", -1, 1, FourMomentum(80.379, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Boson>("Higgs Boson", 0, 0, FourMomentum(125.10, 0, 0, 0)));
-    catalogue.addParticle(std::make_shared<Boson>("Photon", 0, 1, FourMomentum(0, 0, 0, 0)));
-
-    // Print all particles
-    std::cout << "All particles added successfully and their details are:" << std::endl;
-    catalogue.printAllParticles(true);
-}
+#include "ParticleCatalogue.h"
+#include <memory>
+#include <iostream>
 
 int main() {
-    try {
-        testParticles();
-    } catch (const std::exception& e) {
-        std::cerr << "Exception caught in main: " << e.what() << std::endl;
-        return 1;
-    }
+    // Create particle catalogue
+    ParticleCatalogue catalogue;
 
-    std::cout << "Program completed successfully." << std::endl;
+    // Define some four-momentum examples
+    FourMomentum p1(100, 0, 0, 100); // Electron
+    FourMomentum p2(80, 0, 0, 80);   // Muon
+    FourMomentum p3(120, 10, 0, 0);  // Quark
+
+    // Create some particles
+    std::shared_ptr<Particle> electron(new Electron(-1, 0.5, p1, std::vector<double>{20, 20, 30, 30}));
+    std::shared_ptr<Particle> muon(new Muon(-1, 0.5, p2, true));
+    std::shared_ptr<Particle> quark(new Quark("Up", 2/3, 0.5, "Red", p3));
+
+    // Add particles to catalogue
+    catalogue.addParticle(electron);
+    catalogue.addParticle(muon);
+    catalogue.addParticle(quark);
+
+    // Print all particles
+    std::cout << "All particles in the catalogue:" << std::endl;
+    catalogue.printAllParticles(true);
+
+    // Calculate and print the total four-momentum
+    FourMomentum totalMomentum = catalogue.getTotalFourMomentum();
+    std::cout << "Total Four-Momentum: E=" << totalMomentum.getComponent(0)
+              << ", px=" << totalMomentum.getComponent(1)
+              << ", py=" << totalMomentum.getComponent(2)
+              << ", pz=" << totalMomentum.getComponent(3) << std::endl;
+
     return 0;
 }
