@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <numeric>  // For std::accumulate
 
 class Lepton : public Particle {
 protected:
@@ -39,27 +40,37 @@ public:
 };
 
 class Electron : public Lepton {
+private:
+    std::vector<double> calorimeterLayers;
+
 public:
-    Electron(double charge, double spin, FourMomentum fourMomentum)
-        : Lepton(charge, spin, (charge > 0 ? 1 : -1), fourMomentum) {}
+    Electron(double charge, double spin, FourMomentum fourMomentum, const std::vector<double>& layers)
+        : Lepton(charge, spin, (charge > 0 ? 1 : -1), fourMomentum), calorimeterLayers(layers) {
+        if (std::accumulate(layers.begin(), layers.end(), 0.0) != fourMomentum_.getComponent(0)) {
+            std::cerr << "Warning: Total calorimeter energy does not match electron's energy." << std::endl;
+        }
+    }
 
     std::string getType() const override { return "Electron"; }
 };
 
 class Muon : public Lepton {
+private:
+    bool isIsolated;
+
 public:
-    Muon(double charge, double spin, FourMomentum fourMomentum)
-        : Lepton(charge, spin, (charge > 0 ? 1 : -1), fourMomentum) {}
+    Muon(double charge, double spin, FourMomentum fourMomentum, bool isolated)
+        : Lepton(charge, spin, (charge > 0 ? 1 : -1), fourMomentum), isIsolated(isolated) {}
 
     std::string getType() const override { return "Muon"; }
 };
 
 class Tau : public Lepton {
 public:
+    std::vector<std::shared_ptr<Particle>> decayProducts;
+
     Tau(double charge, double spin, FourMomentum fourMomentum)
         : Lepton(charge, spin, (charge > 0 ? 1 : -1), fourMomentum) {}
-
-    std::vector<std::shared_ptr<Particle>> decayProducts;
 
     void decay(const std::vector<std::shared_ptr<Particle>>& products) {
         decayProducts = products;
@@ -76,6 +87,20 @@ public:
             }
         }
         std::cout << std::endl;
+    }
+};
+
+class Neutrino : public Lepton {
+public:
+    Neutrino(double charge, double spin, FourMomentum fourMomentum, const std::string& type)
+        : Lepton(charge, spin, (charge > 0 ? 1 : -1), fourMomentum) {}
+
+    std::string getType() const override {
+        return "Neutrino";
+    }
+
+    void print(bool detailed) const override {
+        Lepton::print(detailed);
     }
 };
 
