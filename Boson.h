@@ -7,47 +7,40 @@
 #include <memory>
 
 class Boson : public Particle {
-private:
-    double charge_;             // Boson charge
-    double spin_;               // Boson spin
-    FourMomentum fourMomentum_; // Boson four-momentum
+protected:
+    double charge_;
+    double spin_;
+    FourMomentum fourMomentum_;
+    std::vector<std::shared_ptr<Particle>> decayProducts;
 
 public:
-    // Constructor with initialization list
     Boson(double charge, double spin, FourMomentum fourMomentum)
         : charge_(charge), spin_(spin), fourMomentum_(fourMomentum) {}
 
-    // Destructor
-    virtual ~Boson() override {}
+    virtual ~Boson() {}
 
-    // Overridden methods from Particle
-    double charge() const override {
-        return charge_; // Return the charge of the Boson
+    void decay(const std::vector<std::shared_ptr<Particle>>& products) {
+        decayProducts = products;
     }
 
-    double spin() const override {
-        return spin_; // Return the spin of the Boson
-    }
-
-    std::string getType() const override {
-        return "Boson"; // Return the type as a string
-    }
-
-    FourMomentum getFourMomentum() const override {
-        return fourMomentum_; // Return the four-momentum
-    }
+    double charge() const override { return charge_; }
+    double spin() const override { return spin_; }
+    FourMomentum getFourMomentum() const override { return fourMomentum_; }
+    std::string getType() const override { return "Boson"; }
 
     void print(bool detailed) const override {
-        // Print the basic information
-        std::cout << getType() << " with charge: " << charge()
-                  << " and spin: " << spin();
-
-        // If detailed is true, print the four-momentum components
-        if (detailed) {
-            std::cout << ", Four-Momentum: E=" << fourMomentum_.getComponent(0)
-                      << ", px=" << fourMomentum_.getComponent(1)
-                      << ", py=" << fourMomentum_.getComponent(2)
-                      << ", pz=" << fourMomentum_.getComponent(3);
+        std::cout << getType() << " with charge: " << charge_
+                  << ", spin: " << spin_
+                  << ", four-momentum: E=" << fourMomentum_.getComponent(0)
+                  << ", px=" << fourMomentum_.getComponent(1)
+                  << ", py=" << fourMomentum_.getComponent(2)
+                  << ", pz=" << fourMomentum_.getComponent(3)
+                  << ", Derived Rest Mass: " << fourMomentum_.invariantMass() << " MeV";
+        if (detailed && !decayProducts.empty()) {
+            std::cout << ", decays into: ";
+            for (const auto& prod : decayProducts) {
+                std::cout << prod->getType() << " ";
+            }
         }
         std::cout << std::endl;
     }
