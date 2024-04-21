@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <iomanip>  // For std::setprecision and std::fixed
+#include <cmath>    // For std::fabs
 
 class Boson : public Particle {
 protected:
@@ -16,10 +17,9 @@ protected:
     std::vector<std::shared_ptr<Particle>> decayProducts;  // Container for decay products
 
 public:
-    Boson(std::string type, double charge, double spin, FourMomentum fourMomentum)
+    Boson(const std::string& type, double charge, double spin, const FourMomentum& fourMomentum)
         : type_(type), charge_(charge), spin_(spin), fourMomentum_(fourMomentum) {
-        // Validate that the mass is correct for this type of particle
-        validateMass();
+        validateMass(); // Validate the mass at construction
     }
 
     virtual ~Boson() {}
@@ -43,25 +43,27 @@ public:
     }
 
     void print(bool detailed) const override {
-        std::cout << std::fixed << std::setprecision(2);  // Sets decimal precision for output
-        std::cout << type_ << " with charge: " << charge_
-                  << ", spin: " << spin_
-                  << ", four-momentum: E=" << fourMomentum_.getComponent(0)
-                  << ", px=" << fourMomentum_.getComponent(1)
-                  << ", py=" << fourMomentum_.getComponent(2)
-                  << ", pz=" << fourMomentum_.getComponent(3)
-                  << ", Derived Rest Mass: " << fourMomentum_.invariantMass() << " MeV";
+        std::cout << std::fixed << std::setprecision(2);
+        std::cout << "----------------------------------------------------------------\n"
+                  << "Particle Type  : " << getType() << "\n"
+                  << "Charge         : " << charge() << "\n"
+                  << "Spin           : " << spin() << "\n"
+                  << "Four-momentum  : (E=" << getFourMomentum().getComponent(0)
+                  << ", px=" << getFourMomentum().getComponent(1)
+                  << ", py=" << getFourMomentum().getComponent(2)
+                  << ", pz=" << getFourMomentum().getComponent(3) << ")\n"
+                  << "Derived Mass   : " << fourMomentum_.invariantMass() << " MeV\n";
         if (detailed && !decayProducts.empty()) {
-            std::cout << ", Decays into: ";
+            std::cout << "Decays into    : ";
             for (const auto& prod : decayProducts) {
-                std::cout << prod->getType() << " ";
+                std::cout << prod->getType() << " (" << prod->getFourMomentum().invariantMass() << " MeV) ";
             }
+            std::cout << "\n";
         }
-        std::cout << std::endl;
+        std::cout << "----------------------------------------------------------------\n";
     }
 
 private:
-    // Ensures that the calculated rest mass matches the expected mass for this boson type
     void validateMass() {
         const double tolerance = 1.0; // MeV tolerance for mass validation
         double expectedMass = getExpectedMassForType();

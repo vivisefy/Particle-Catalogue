@@ -25,24 +25,32 @@ public:
     virtual int getLeptonNumber() const { return 0; }
     virtual bool isStable() const { return true; }
 
-    // Virtual function for decay, returning a vector of decay products
-    virtual std::vector<std::shared_ptr<Particle>> decay() const {
+    // Enhanced decay mechanism to allow more flexible handling of decays
+    virtual std::vector<std::shared_ptr<Particle>> decayProducts() const {
         return {}; // By default, an empty vector (no decay products)
     }
+
+    // Virtual functions for properties specific to certain types of particles
+    virtual bool isIsolated() const { return false; } // For muons
+    virtual bool hasInteracted() const { return false; } // For neutrinos
 
     // Utility function to display basic information about the particle
     void displayBasicInfo() const {
         std::cout << std::fixed << std::setprecision(2); // Sets decimal precision for output
-        std::cout << "Particle type: " << getType() << "\n"
-                  << "Charge: " << charge() << "\n"
-                  << "Spin: " << spin() << "\n"
-                  << "Four-momentum: E=" << getFourMomentum().getComponent(0)
+        std::cout << "----------------------------------------------------------------\n"
+                  << "Particle Information\n"
+                  << "----------------------------------------------------------------\n"
+                  << "Type       : " << getType() << "\n"
+                  << "Charge     : " << charge() << "\n"
+                  << "Spin       : " << spin() << "\n"
+                  << "Momentum   : (E=" << getFourMomentum().getComponent(0)
                   << ", px=" << getFourMomentum().getComponent(1)
                   << ", py=" << getFourMomentum().getComponent(2)
-                  << ", pz=" << getFourMomentum().getComponent(3) << "\n"
-                  << "Baryon Number: " << getBaryonNumber() << "\n"
-                  << "Lepton Number: " << getLeptonNumber() << "\n"
-                  << "Stability: " << (isStable() ? "Stable" : "Unstable") << std::endl;
+                  << ", pz=" << getFourMomentum().getComponent(3) << ")\n"
+                  << "Baryon No. : " << getBaryonNumber() << "\n"
+                  << "Lepton No. : " << getLeptonNumber() << "\n"
+                  << "Stability  : " << (isStable() ? "Stable" : "Unstable") << "\n"
+                  << "----------------------------------------------------------------\n";
     }
 };
 
