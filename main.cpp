@@ -8,53 +8,61 @@
 #include <iostream>
 #include <vector>
 
+// Factory function for particle creation
+template<typename ParticleType, typename... Args>
+std::shared_ptr<Particle> createParticle(Args&&... args) {
+    return std::make_shared<ParticleType>(std::forward<Args>(args)...);
+}
+
 int main() {
-    // Create particle catalogue
     ParticleCatalogue catalogue;
 
-    // Define some four-momentum examples
-    FourMomentum p1(100, 0, 0, 100); // Electron
-    FourMomentum p2(80, 0, 0, 80);   // Muon
-    FourMomentum p3(120, 10, 0, 0);  // Quark
-    FourMomentum p4(177, 0, 0, 177); // Tau
+    // Correctly initialize electrons and positrons with matching calorimeter energy
+    auto electron = createParticle<Electron>(-1, 0.5, FourMomentum(0.5, 0, 0, 0), std::vector<double>{0.125, 0.125, 0.125, 0.125});
+    auto positron = createParticle<Electron>(1, 0.5, FourMomentum(0.5, 0, 0, 0), std::vector<double>{0.125, 0.125, 0.125, 0.125});
+    
+    auto muon = createParticle<Muon>(-1, 0.5, FourMomentum(105.7, 0, 0, 105.7), true);
+    auto antimuon = createParticle<Muon>(1, 0.5, FourMomentum(105.7, 0, 0, -105.7), true);
 
-    // Create some particles
-    std::shared_ptr<Particle> electron(new Electron(-1, 0.5, p1, std::vector<double>{20, 20, 30, 30}));
-    std::shared_ptr<Particle> muon(new Muon(-1, 0.5, p2, true));
-    std::shared_ptr<Particle> quark(new Quark("Up", 2/3, 0.5, "Red", p3));
-    std::shared_ptr<Particle> tau(new Tau(-1, 0.5, p4));
+    auto tau = createParticle<Tau>(-1, 0.5, FourMomentum(1776.86, 0, 0, 1776.86));
+    auto antitau = createParticle<Tau>(1, 0.5, FourMomentum(1776.86, 0, 0, -1776.86));
 
-    // Define decay products for tau
-    std::vector<std::shared_ptr<Particle>> tauDecayProducts;
-    tauDecayProducts.push_back(std::make_shared<Muon>(-1, 0.5, FourMomentum(50, 0, 0, 50), true));
-    tauDecayProducts.push_back(std::make_shared<Neutrino>(0, 0.5, FourMomentum(127, 0, 0, 127)));
+    // Create neutrinos with small but non-zero momentum
+    auto neutrinoEnergy = 0.1; // Placeholder for demonstration; should be adjusted based on simulation needs
+    auto electronNeutrino = createParticle<Neutrino>(0, 0.5, FourMomentum(neutrinoEnergy, 0, 0, neutrinoEnergy));
+    auto electronAntineutrino = createParticle<Neutrino>(0, 0.5, FourMomentum(neutrinoEnergy, 0, 0, -neutrinoEnergy));
 
-    // Set tau decay products and simulate decay
-    dynamic_cast<Tau*>(tau.get())->setDecayProducts(tauDecayProducts);
+    // Create quarks with realistic four-momentum
+    auto upQuark = createParticle<Quark>("Up", 2/3.0, 0.5, "Red", FourMomentum(2.3, 0, 0, 2.3));
+    auto antiupQuark = createParticle<Quark>("Anti-Up", -2/3.0, 0.5, "Anti-Red", FourMomentum(2.3, 0, 0, -2.3));
 
-    // Add particles to catalogue
+    // Create gauge bosons with correct mass and energy matching momentum for massless photon
+    auto photon = createParticle<Boson>("Photon", 0, 1, FourMomentum(10, 0, 0, 10)); // Example energy value for photon
+    auto wPlus = createParticle<Boson>("W+", 1, 1, FourMomentum(80379, 0, 0, 80379));
+    auto wMinus = createParticle<Boson>("W-", -1, 1, FourMomentum(80379, 0, 0, -80379));
+    auto zBoson = createParticle<Boson>("Z0", 0, 1, FourMomentum(91187.6, 0, 0, 0)); // Correctly reflecting mass
+
+    // Create Higgs boson
+    auto higgs = createParticle<Boson>("Higgs", 0, 0, FourMomentum(125100, 0, 0, 0));
+
+    // Add particles to the catalogue
     catalogue.addParticle(electron);
+    catalogue.addParticle(positron);
     catalogue.addParticle(muon);
-    catalogue.addParticle(quark);
+    catalogue.addParticle(antimuon);
     catalogue.addParticle(tau);
+    catalogue.addParticle(antitau);
+    catalogue.addParticle(electronNeutrino);
+    catalogue.addParticle(electronAntineutrino);
+    catalogue.addParticle(photon);
+    catalogue.addParticle(wPlus);
+    catalogue.addParticle(wMinus);
+    catalogue.addParticle(zBoson);
+    catalogue.addParticle(higgs);
 
-    // Print all particles
+    // Display all particles
     std::cout << "All particles in the catalogue:" << std::endl;
     catalogue.printAllParticles(true);
-
-    // Simulate and display decay of tau
-    std::cout << "Simulating decay of Tau:" << std::endl;
-    auto decayedParticles = tau->decay();
-    for (const auto& particle : decayedParticles) {
-        particle->print(true);
-    }
-
-    // Calculate and print the total four-momentum
-    FourMomentum totalMomentum = catalogue.getTotalFourMomentum();
-    std::cout << "Total Four-Momentum: E=" << totalMomentum.getComponent(0)
-              << ", px=" << totalMomentum.getComponent(1)
-              << ", py=" << totalMomentum.getComponent(2)
-              << ", pz=" << totalMomentum.getComponent(3) << std::endl;
 
     return 0;
 }

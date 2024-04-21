@@ -49,8 +49,11 @@ private:
 public:
     Electron(double charge, double spin, FourMomentum fourMomentum, const std::vector<double>& layers)
         : Lepton(charge, spin, (charge > 0 ? 1 : -1), fourMomentum), calorimeterLayers(layers) {
-        if (std::accumulate(layers.begin(), layers.end(), 0.0) != fourMomentum_.getComponent(0)) {
+        double totalCalorimeterEnergy = std::accumulate(layers.begin(), layers.end(), 0.0);
+        if (totalCalorimeterEnergy != fourMomentum_.getComponent(0)) {
             std::cerr << "Warning: Total calorimeter energy does not match electron's energy." << std::endl;
+            // Adjust the energy component to match the sum of calorimeter layers.
+            fourMomentum_.adjustForPhysicalConsistency(totalCalorimeterEnergy);
         }
     }
 
@@ -101,7 +104,7 @@ public:
 class Neutrino : public Lepton {
 public:
     Neutrino(double charge, double spin, FourMomentum fourMomentum)
-        : Lepton(charge, spin, (charge > 0 ? 1 : -1), fourMomentum) {}
+        : Lepton(charge, spin, (charge == 0 ? -1 : 1), fourMomentum) {}
 
     std::string getType() const override {
         return "Neutrino";

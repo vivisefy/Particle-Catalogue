@@ -1,45 +1,46 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
-#include <iostream>  // For std::cout and std::endl
+#include <iostream>
 #include <string>
 #include <vector>
-#include <memory>    // For std::shared_ptr
+#include <memory>
 #include "FourMomentum.h"
 
 class Particle {
 public:
+    // Virtual destructor to ensure derived class destructors are called
     virtual ~Particle() {}
 
-    // Basic properties
+    // Pure virtual functions defining the interface that all derived classes must implement
     virtual double charge() const = 0;
     virtual double spin() const = 0;
     virtual void print(bool detailed) const = 0;
     virtual std::string getType() const = 0;
     virtual FourMomentum getFourMomentum() const = 0;
 
-    // Quantum numbers
+    // Optional virtual functions for quantum numbers and stability
     virtual int getBaryonNumber() const { return 0; }
     virtual int getLeptonNumber() const { return 0; }
     virtual bool isStable() const { return true; }
 
-    // Decay function: Returns a vector of decay products
+    // Virtual function for decay, returning a vector of decay products
     virtual std::vector<std::shared_ptr<Particle>> decay() const {
         return {}; // By default, an empty vector (no decay products)
     }
 
-    // Display basic information
+    // Utility function to display basic information about the particle
     void displayBasicInfo() const {
-        std::cout << getType() << ":\n"
-                  << "  Charge: " << charge() << "\n"
-                  << "  Spin: " << spin() << "\n"
-                  << "  Four-momentum: E=" << getFourMomentum().getComponent(0)
+        std::cout << "Particle type: " << getType() << "\n"
+                  << "Charge: " << charge() << "\n"
+                  << "Spin: " << spin() << "\n"
+                  << "Four-momentum: E=" << getFourMomentum().getComponent(0)
                   << ", px=" << getFourMomentum().getComponent(1)
                   << ", py=" << getFourMomentum().getComponent(2)
                   << ", pz=" << getFourMomentum().getComponent(3) << "\n"
-                  << "  Baryon Number: " << getBaryonNumber() << "\n"
-                  << "  Lepton Number: " << getLeptonNumber() << "\n"
-                  << "  Stability: " << (isStable() ? "Stable" : "Unstable") << std::endl;
+                  << "Baryon Number: " << getBaryonNumber() << "\n"
+                  << "Lepton Number: " << getLeptonNumber() << "\n"
+                  << "Stability: " << (isStable() ? "Stable" : "Unstable") << std::endl;
     }
 };
 

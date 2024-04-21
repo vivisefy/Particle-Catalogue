@@ -4,38 +4,36 @@
 #include "Particle.h"
 #include <vector>
 #include <memory>
+#include <algorithm>
+#include <typeinfo>
+#include <unordered_map>
 #include <iostream>
+#include <functional>
 
 class ParticleCatalogue {
 private:
     std::vector<std::shared_ptr<Particle>> particles;
 
 public:
-    // Add a particle to the catalogue
     void addParticle(const std::shared_ptr<Particle>& particle) {
         particles.push_back(particle);
     }
 
-    // Remove all particles from the catalogue
     void clear() {
         particles.clear();
     }
 
-    // Get the total number of particles
     size_t getTotalNumberOfParticles() const {
         return particles.size();
     }
 
-    // Calculate the total four-momentum of all particles
     FourMomentum getTotalFourMomentum() const {
-        FourMomentum totalMomentum;
-        for (const auto& particle : particles) {
-            totalMomentum += particle->getFourMomentum();
-        }
-        return totalMomentum;
+        return std::accumulate(particles.begin(), particles.end(), FourMomentum(),
+                               [](const FourMomentum& total, const std::shared_ptr<Particle>& p) {
+                                   return total + p->getFourMomentum();
+                               });
     }
 
-    // Print detailed information for each particle
     void printAllParticles(bool detailed = false) const {
         if (particles.empty()) {
             std::cout << "No particles in catalogue." << std::endl;
@@ -46,15 +44,33 @@ public:
         }
     }
 
-    // Get a vector of particles of a specific type
-    std::vector<std::shared_ptr<Particle>> getParticlesByType(const std::string& type) const {
+    template<typename ParticleType>
+    std::vector<std::shared_ptr<Particle>> getParticlesByType() const {
         std::vector<std::shared_ptr<Particle>> filteredParticles;
         for (const auto& particle : particles) {
-            if (particle->getType() == type) {
+            if (typeid(*particle) == typeid(ParticleType)) {
                 filteredParticles.push_back(particle);
             }
         }
         return filteredParticles;
+    }
+
+    std::unordered_map<std::string, int> getParticleTypeCounts() const {
+        std::unordered_map<std::string, int> counts;
+        for (const auto& particle : particles) {
+            counts[typeid(*particle).name()]++;
+        }
+        return counts;
+    }
+
+    void sortParticles(const std::function<bool(const std::shared_ptr<Particle>&, const std::shared_ptr<Particle>&)>& comp) {
+        std::sort(particles.begin(), particles.end(), comp);
+    }
+
+    std::vector<std::shared_ptr<Particle>> filterParticles(const std::function<bool(const std::shared_ptr<Particle>&)>& pred) const {
+        std::vector<std::shared_ptr<Particle>> result;
+        std::copy_if(particles.begin(), particles.end(), std::back_inserter(result), pred);
+        return result;
     }
 };
 

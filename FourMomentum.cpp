@@ -1,4 +1,6 @@
 #include "FourMomentum.h"
+#include <iostream> // Include this to use std::cerr and std::endl
+#include <cmath>    // Include for std::sqrt and std::isfinite
 
 FourMomentum::FourMomentum() : components(4, 0.0) {}
 
@@ -65,4 +67,26 @@ bool FourMomentum::operator!=(const FourMomentum& other) const {
         if (components[i] != other.components[i]) return true;
     }
     return false;
+}
+
+void FourMomentum::adjustForPhysicalConsistency(double expectedMass) {
+    double calculatedMass = invariantMass();
+    if (std::abs(calculatedMass - expectedMass) > 1e-4) {  // Tolerance for floating-point comparison
+        if (calculatedMass == 0 && expectedMass == 0) return; // No adjustment needed for zero mass scenario
+        double adjustmentFactor = (calculatedMass == 0) ? 0 : expectedMass / calculatedMass;
+        if (!std::isfinite(adjustmentFactor)) {  // Check for non-finite values to prevent NaN or Inf values
+            std::cerr << "Non-finite adjustment factor detected, setting default safe state." << std::endl;
+            components[0] = expectedMass;  // Set energy to the expected mass
+            for (int i = 1; i < 4; ++i) {  // Set spatial components to zero
+                components[i] = 0;
+            }
+            return;
+        }
+        // Adjust spatial components
+        for (int i = 1; i < 4; ++i) {
+            components[i] *= adjustmentFactor;
+        }
+        // Recalculate energy component from adjusted spatial components
+        components[0] = sqrt(components[1]*components[1] + components[2]*components[2] + components[3]*components[3] + expectedMass*expectedMass);
+    }
 }
