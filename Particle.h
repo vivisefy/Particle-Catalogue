@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <iomanip> // For std::setprecision and std::fixed
 #include "FourMomentum.h"
 
 class Particle {
@@ -31,6 +32,7 @@ public:
 
     // Utility function to display basic information about the particle
     void displayBasicInfo() const {
+        std::cout << std::fixed << std::setprecision(2); // Sets decimal precision for output
         std::cout << "Particle type: " << getType() << "\n"
                   << "Charge: " << charge() << "\n"
                   << "Spin: " << spin() << "\n"

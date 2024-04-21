@@ -103,8 +103,8 @@ public:
 
 class Neutrino : public Lepton {
 public:
-    Neutrino(double charge, double spin, FourMomentum fourMomentum)
-        : Lepton(charge, spin, (charge == 0 ? -1 : 1), fourMomentum) {}
+    Neutrino(double charge, double spin, int leptonNumber, FourMomentum fourMomentum)
+        : Lepton(charge, spin, leptonNumber, fourMomentum) {}
 
     std::string getType() const override {
         return "Neutrino";
