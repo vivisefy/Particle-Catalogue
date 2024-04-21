@@ -32,10 +32,11 @@ public:
     }
 
     FourMomentum getTotalFourMomentum() const {
-        return std::accumulate(particles.begin(), particles.end(), FourMomentum(),
-                               [](const FourMomentum& total, const std::shared_ptr<Particle>& p) {
-                                   return p ? total + p->getFourMomentum() : total;
-                               });
+        FourMomentum total;
+        for (const auto& p : particles) {
+            if (p) total += p->getFourMomentum();
+        }
+        return total;
     }
 
     std::unordered_map<std::string, int> getParticleCounts() const {
